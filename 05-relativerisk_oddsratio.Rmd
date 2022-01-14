@@ -1,0 +1,300 @@
+---
+title: "Case Study: Daily Vitamin Use During Cold and Flu Season"
+subtitle: "Learning Objective: Relative Risk and Odds Ratio"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+Most people will tell you that Vitamin C is a good way to prevent getting sick during cold and flu season. But how do we know?
+
+In 1972, a study was published in the *Canadian Medical Association Journal* titled "Vitamin C and the Common Cold". That study used a randomized experiment to assign 407 volunteers to consume 1,000 mg of vitamin C daily throughout the cold season, and 411 to receive a placebo. A physician interviewed the volunteers at the end of the study to determine whether or not they had suffered any colds during the study period.
+
+```{r}
+library(Sleuth3)
+library(tidyverse)
+
+data(case1802)
+
+vitaminC <- case1802
+```
+
+The results of the study are summarized in the table below.
+
+| Treatment | Developed a cold | Did not develop a cold | Total |
+|-----------|------------------|------------------------|-------|
+| Placebo   | 335              | 76                     | 411   |
+| Vitamin C | 302              | 105                    | 407   |
+| Total     | 637              | 181                    | 818   |
+
+### Check your understanding
+
+```{r quiz}
+question("Why is randomization important in an experiment?",
+  answer("Randomization ensures all treatment groups are the same size."),
+  answer("Randomization ensures all participants have an even chance of receiving the treatment."),
+  answer('Randomization ensures that any possible confounding variables are "balanced out".', correct=TRUE),
+  answer("Randomization prevents possible researcher bias from affecting the results.", correct=TRUE)
+)
+```
+
+Use the calculation box to find the proportion of all participants who developed a cold during the experiment.
+
+```{r exercise1, exercise=TRUE}
+
+```
+
+```{r, exercise1-solution}
+637/818
+```
+
+How does the likelihood of developing a cold compare between the vitamin C (treatment) and placebo group?
+
+```{r}
+data <- tribble(
+  ~Group, ~Cold, ~n,
+  "Placebo", "Yes", 335,
+  "Placebo", "No", 76,
+  "Vitamin C", "Yes", 302,
+  "Vitamin C", "No", 105
+)
+
+data <- uncount(data, weights=n)
+
+data %>%
+  ggplot(aes(x=Group)) + 
+  geom_bar(aes(fill=Cold), position='dodge')
+```
+
+## Sample proportions
+
+One natural place to start is with the __sample proportions__.
+
+$$\hat{p} = \frac{Number \ in \ category \ of \ interest}{Number \ in \ group}$$
+
+Let $\hat{p}_1$ denote the sample proportion in the placebo group and $\hat{p}_2$ denote the sample proportion in the treatment group.
+
+
+| Treatment | Developed a cold | Did not develop a cold | Total |
+|-----------|------------------|------------------------|-------|
+| Placebo   | 335              | 76                     | 411   |
+| Vitamin C | 302              | 105                    | 407   |
+| Total     | 637              | 181                    | 818   |
+
+Let's begin with the placebo group. Out of 411 participants in the vitamin C group, 335 developed a cold.
+
+$$\hat{p}_1 = \frac{335}{411} = 0.815 = 81.5 \%$$
+
+In this experiment, 81.5% of participants in the placebo group developed a cold.
+
+Use the calculation box below to find the sample proportion for the treatment group.
+
+```{r exercise2, exercise=TRUE}
+
+```
+
+```{r, exercise2-solution}
+302/407
+```
+
+```{r quiz2}
+question("Which group was more likely to develop a cold during the experiment?",
+  answer("Treatment group"),
+  answer("Placebo group", correct=TRUE)
+)
+```
+
+## Relative risk 
+
+Proportions can be difficult to directly compare. The possible values of a proportion range from 0 to 1, which means that any difference between the proportions themselves will also be small.
+
+### Relative risk
+
+Relative risk is a... relative measure. 
+
+> __Relative risk__: The ratio of the sample proportions of two groups
+
+In other words, how large is the likelihood of something occurring in one group as a function of the other?
+
+
+
+
+### Calculating relative risk
+
+To calculate relative risk, find the sample proportions in each group first. Then, calculate the ratio of group 1 to group 2.
+
+$$Relative \ risk = \frac{{\hat{p}}_1}{\hat{p}_2}$$
+
+Use the calculation box below to find the relative risk of developing a cold for the placebo group compared to the treatment group.
+
+| Treatment | Developed a cold | Did not develop a cold | Total |
+|-----------|------------------|------------------------|-------|
+| Placebo   | 335              | 76                     | 411   |
+| Vitamin C | 302              | 105                    | 407   |
+| Total     | 637              | 181                    | 818   |
+
+```{r exercise3, exercise=TRUE}
+
+```
+
+```{r, exercise3-solution}
+(335/411)/(302/407)
+```
+
+### Interpretation
+
+Relative risk should be interpreted as a direct comparison.
+
+```{r quiz3}
+question("Choose the best interpretation of the relative risk.",
+  answer("The risk of developing a cold while taking a placebo is 1.1 times the risk of developing a cold while taking vitamin C.", correct=TRUE),
+  answer("The risk of developing a cold while taking vitamin C is 1.1 times the risk of developing a cold while taking a placebo."),
+  answer("The risk of developing a cold while taking vitamin C is 1.1 times higher than the risk of developing a cold while taking a placebo."),
+  answer("The risk of developing a cold while taking a placebo is 1.1 times higher than the risk of developing a cold while taking vitamin C.")
+)
+```
+
+A relative risk close to 1 indicates that the two groups have similar proportions, or _risks_. The larger the relative risk, the greater the discrepancy between the risk of an event occurring in each group.
+
+## Odds ratio
+
+Odds ratio is another measure that can be used to compare the risk or probability of an event in two groups.
+
+> __Odds ratio__: The ratio of the sample odds of two groups
+
+In order to calculate the odds ratio, we first need to define the __odds__.
+
+### Odds
+
+> __Odds__: The ratio of "successes" (the category of interest) to "failures" (not the category of interest)
+
+We can convert the sample proportion to the odds.
+
+$$Odds = \frac{\hat{p}}{1-\hat{p}}$$
+
+We previously showed that the proportion of all participants in the placebo group who developed a cold is $335/411 = 0.815$.
+
+We can use this to find the odds for the placebo group.
+
+$$Odds_1 = \frac{\hat{p}_1}{1-\hat{p}_1} = \frac{0.815}{1-0.815}=4.4$$
+
+The __odds of developing a cold for the placebo group is 4.4__ - participants in this experiment were 4.4 times as likely to develop a cold as not. 
+
+
+| Treatment | Developed a cold | Did not develop a cold | Total |
+|-----------|------------------|------------------------|-------|
+| Placebo   | 335              | 76                     | 411   |
+| Vitamin C | 302              | 105                    | 407   |
+| Total     | 637              | 181                    | 818   |
+
+Use the calculation box below to find the odds for the treatment group.
+
+```{r exercise4, exercise=TRUE}
+
+```
+
+```{r, exercise4-solution}
+0.742/(1-0.742)
+
+302/(105)
+```
+
+
+Now, we can revisit the odds ratio.
+
+### Calculating odds ratio
+
+To calculate odds ratio, find the sample proportions and/or in each group first. Then, calculate the ratio of the odds of group 1 to group 2.
+
+$$Odds \ ratio =\frac{Odds_1}{Odds_2}= \frac{{\hat{p}}_1/(1-\hat{p}_1)}{\hat{p}_2/(1-\hat{p}_2)}$$
+
+Use the calculation box below to find the odds of developing a cold for the placebo group compared to the treatment group.
+
+_Hint_: $Odds_1=4.4$ and $Odds_2=2.9$.
+
+```{r exercise5, exercise=TRUE}
+
+```
+
+```{r, exercise5-solution}
+4.4/2.9
+```
+
+### Interpretation
+
+Like relative risk, the odds ratio should be interpreted as a direct comparison.
+
+```{r quiz4}
+question("Choose the best interpretation of the odds ratio.",
+  answer("The odds of developing a cold while taking vitamin C are 1.5 times the odds of developing a cold while taking a placebo."),
+  answer("The odds of developing a cold while taking a placebo are 1.5 times the odds of developing a cold while taking vitamin C.", correct=TRUE)
+)
+```
+
+
+## Practice
+
+A five-year experiment was conducted to evaluate the effectiveness of fish oils on reducing cardiovascular events, where each subject was randomized into one of two treatment groups. 
+
+Group|Heart attack|No heart attack|Total
+----|----|----|----
+Fish oil|145|12788|12933
+Placebo|300|12638|12938
+
+Use the calculation box to find the proportion of participants in the fish oil group who experienced a cardiac event.
+
+```{r exercise6, exercise=TRUE}
+
+```
+
+```{r, exercise6-solution}
+145/12933
+```
+
+Use the calculation box to find the proportion of participants in the placebo group who experienced a cardiac event.
+
+```{r exercise7, exercise=TRUE}
+
+```
+
+```{r, exercise7-solution}
+300/12938
+```
+
+Use the calculation box to find the relative risk of experiencing a cardiac event for the placebo group (1) compared to the fish oil group (2).
+
+```{r exercise8, exercise=TRUE}
+
+```
+
+```{r, exercise8-solution}
+0.0232/0.0112
+```
+
+Use the calculation box to find the odds ratio of experiencing a cardiac event for the placebo group (1) compared to the fish oil group (2).
+
+```{r exercise9, exercise=TRUE}
+
+```
+
+```{r, exercise9-solution}
+(0.0232/(1-0.0232))/(0.0112/(1-0.0112))
+```
+
+
+```{r quiz5}
+question("Choose the best statement comparing these two groups in this experiment.",
+  answer("Subjects who took a placebo supplement were about twice as likely to experience a cardiac event as subjects who took a fish oil supplement.", correct=TRUE),
+  answer("Subjects who took a fish oil supplement were about twice as likely to experience a cardiac event as subjects who took a placebo supplement."),
+  answer("There was no meaningful difference between the two experimental groups, since the likelihood of a cardiac event was very small in both.")
+)
+```

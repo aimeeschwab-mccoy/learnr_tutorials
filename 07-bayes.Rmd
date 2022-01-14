@@ -1,0 +1,215 @@
+---
+title: "Case Study: Breast Cancer Screenings"
+subtitle: "Learning Objective: Conditional Probability and Bayes' Rule"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+    progressive: true
+    allow_skip: false
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+In Canada, it's estimated that about 0.35% of women over 40 will develop breast cancer in any given year. A common screening test for breast cancer is the mammogram, but like any diagnostic procedure it's not perfect. Suppose that about 7.3% of all mammograms will detect breast cancer.
+
+Data suggests that in 11% of patients with breast cancer, the test gives a false negative. That is, the test indicates that a woman does not have breast cancer when in fact she does have it.
+
+Similarly, the test gives a false positive in 7% of patients who do not have breast cancer. In other words it indicates these patients have breast cancer when they actually do not.
+
+### Check your understanding
+
+Let $B$ represent the event that a randomly selected Canadian woman over 40 develops breast cancer.
+
+```{r quiz1}
+question("Identify P(B), the probability that a randomly selected Canadian woman over 40 develops breast cancer.",
+  answer("0.11"),
+  answer("0.07"),
+  answer("0.0035", correct=TRUE),
+  answer("0.35")
+)
+```
+
+## Conditional probability
+
+One useful tool for representing and calculating probabilities is conditional probability.
+
+> **Conditional probability**: The probability that an event $A$ occurs, given or conditional on the occurrence of $B$
+
+If we know that event $B$ has occurred, does that change the probability that $A$ also occurs?
+
+We denote the conditional probability of $A$ given $B$ as:
+
+$$
+P(A\vert B)
+$$
+
+The vertical bar reads as "given" or "conditional on".
+
+In our breast cancer example, let $B$ denote the event a Canadian woman has breast cancer and $N$ denote the event a Canadian woman does not have breast cancer.
+
+Further, let $+$ denote the probability that cancer is detected on a mammogram (positive result) and $-$ denote the probability that cancer is not detected (negative result).
+
+We know that:
+
+-   In about 11% of patients with breast cancer, the test gives a false negative. That is, the test indicates that a woman does not have breast cancer when in fact she does have it.
+
+```{r quiz2}
+question("What does this represent in probability notation?",
+  answer("P(B|-)"),
+  answer("P(-|B)", correct=TRUE),
+  answer("P(B|+)"),
+  answer("P(+|B)")
+)
+```
+
+We also know that:
+
+-   The test gives a false positive in 7% of patients who do not have breast cancer. In other words it indicates these patients have breast cancer when they actually do not.
+
+```{r quiz4}
+question("What does this represent in probability notation?",
+  answer("P(N|-)"),
+  answer("P(-|N)"),
+  answer("P(N|+)"),
+  answer("P(+|N)", correct=TRUE)
+)
+```
+
+### Calculating conditional probability
+
+To calculate a conditional probability, use the formula below.
+
+$$P(A\vert B) = \frac{P(A \ and \ B)}{P(B)}$$
+
+For our problem, we know:
+
+- $P(B) = 0.0035$
+- $P(-\vert B) = 0.11$
+- $P(+ \vert N) = 0.07$
+
+Suppose we want to find $P(- \ and \ B)$, the probability that a randomly selected Canadian woman both tests negative and truly has breast cancer.
+
+$$P(-\vert B) = \frac{P(- \ and \ B)}{P(B)}$$
+
+$$0.11 = \frac{P(- \ and \ B)}{0.0035}$$
+
+Use the calculation box to find $P(- \ and \ B)$
+
+```{r exercise1, exercise=TRUE}
+
+```
+
+```{r, exercise1-solution}
+0.11*0.0035
+```
+
+
+```{r quiz5}
+question("We know that P(N) + P(B) must equal 1. Why?",
+  answer("Events N and B are independent - they are unrelated."),
+  answer("Events N and B are complements - one or the other must occur, but not both.", correct=TRUE),
+  answer("Events N and B are disjoint - they cannot occur simultaneously. There are also other possibilities.")
+)
+```
+
+Similarly, we know that
+
+$$P(+ \vert B) + P(- \vert B) = 1$$
+
+This holds because these are mutually exclusive (or disjoint) events that cover all possibilities under the condition. For any woman who has breast cancer, a mammogram will either:
+
+1. Detect the cancer, $+$.
+2. Not detect the cancer, $-$.
+
+Use the calculation box to find $P(+\vert B)$.
+
+```{r exercise2, exercise=TRUE}
+
+```
+
+```{r, exercise2-solution}
+1 - 0.11
+```
+
+## Bayes' Rule
+
+Bayes' Rule is often used to "flip" a conditional probability statement. Given $P(A \vert B)$, we can use it to find $P(B \vert A)$ through this rule.
+
+$$P(A \vert B) =  \frac{P(B \vert A)\times P(A)}{P(B)}$$
+Suppose a woman over 40 in Canada gets a positive result on a mammogram. What is the probability that, given this positive result, she truly has breast cancer?
+
+We know:
+
+- $P(B) = 0.0035$
+- $P(+) = 0.073$
+- $P(+ \vert B) = 0.89$
+
+The probability that given a positive test result a woman over 40 in Canada truly has breast cancer is
+
+$$P(B \vert +) = \frac{P(+ \vert B)\times P(B)}{P(+)}= \frac{0.89\times 0.0035}{0.073}$$
+
+Use the calculation box to find $P(B\vert +)$.
+
+```{r exercise3, exercise=TRUE}
+
+```
+
+```{r, exercise3-solution}
+0.89*0.0035/0.073
+```
+
+
+```{r quiz6}
+question("Even with a positive mammogram result, the probability that a woman truly has breast cancer is low. Why?",
+  answer("Breast cancer is a rare event in the population.", correct=TRUE),
+  answer("Mammograms are unreliable."),
+  answer("Diagnostic tests are always prone to error.")
+)
+```
+
+Mammograms are often used as a "line of first defense" for detecting breast cancer. A positive mammogram result is often not a firm diagnosis - more tests will be done before diagnosing cancer.
+
+## Practice
+
+What proportion of breast cancer cases will go undetected each year in Canada? That is, given that a Canadian woman in her 40s has a negative mammogram screening, what is the probability she actually has cancer?
+
+```{r quiz7}
+question("Select the correct probability notation for this event.",
+  answer("P(B|-)", correct=TRUE),
+  answer("P(-|B)"),
+  answer("P(B|+)"),
+  answer("P(+|B)")
+)
+```
+
+By Bayes' Rule, 
+
+$$P(B \vert -) = \frac{P(- \vert B)\times P(B)}{P(-)}$$
+
+Use the calculation box to find $P(-)$, the probability of a negative mammogram result.
+
+```{r exercise4, exercise=TRUE}
+
+```
+
+```{r, exercise4-solution}
+1 - 0.073
+```
+
+Use the calculation box to find $P(B \vert -)$, the probability that a woman with a negative mammogram result truly has breast cancer.
+
+```{r exercise5, exercise=TRUE}
+
+```
+
+```{r, exercise5-solution}
+0.11*0.0035/(1-0.073)
+```
+

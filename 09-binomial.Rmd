@@ -1,0 +1,272 @@
+---
+title: "Case Study: Detecting Parkinson's Disease"
+subtitle: "Learning Objective: Binomial Distribution"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+In October 2015, Joy Milne made headlines for a remarkable reason: she claimed she could _smell_ Parkinson's disease. 
+
+Parkinson's disease is a debilitating disease that often starts with tremors in a patient's hands. The disease is progressive, and symptoms eventually include:
+
+- Difficulty moving
+- Amnesia and/or confusion
+- Loss of balance
+- Eventually strong, severe tremors
+
+There is no cure for Parkinson's disease. Until recently, doctors relied on a complex and often inaccurate diagnostic test.
+
+At the age of 45, Les Milne was diagnosed with Parkinson's disease. However, about 12 years before his diagnosis, Joy began to notice a change in her husband.
+
+Specifically, in his smell. In an interview, she said
+
+_"His smell changed and it seemed difficult to describe. It wasn't all of a sudden. It was very subtle, a musky smell."_
+
+After becoming involved in the charity Parkinson's UK, Joy realized that other patients with the disease had the same "musky smell". She mentioned this to researchers at one of the charity events, and they decided to test her abilities with an experiment.
+
+### The experiment
+
+The researchers gathered 12 subjects for their experiment: 6 with Parkinson's and 6 without. Each subject wore a brand new white t-shirt for 24 hours, which was then placed into a plastic bag (unwashed).
+
+Next, Joy smelled each shirt and was asked whether she thought the shirt belonged to someone with Parkinson's. She didn't know at the start of the experiment how many subjects had Parkinson's and how many did not.
+
+### Check your understanding
+
+```{r quiz1}
+question("Assume that Joy is just guessing. What is the probability she would guess correctly?",
+  answer("1/12"),
+  answer("1/6"),
+  answer("1/2", correct=TRUE)
+)
+```
+
+```{r quiz2}
+question("What is the sample size for this experiment?",
+  answer("n=2"),
+  answer("n=6"),
+  answer("n=12", correct=TRUE)
+)
+```
+
+
+
+## Simulation studies
+
+In this example, we can get an idea of the outcome we would expect through a __simulation study__.
+
+- Using technology, we'll repeat this experiment many, many times. This will give us a sense for which outcomes are most likely, and which are least likely.
+
+Assuming that Joy is just guessing, she has a 50% probability of guessing whether or not the shirt belongs to a Parkinson's patient correctly. In other words, she's as likely to guess correctly as she is to __flip heads on a coin__.
+
+Grab a coin and try this for yourself. In our simulation, we'll let a head stand for a correct guess. Flip your coin 12 times.
+
+How many heads did you observe?
+
+The code below below simulates flipping a coin 12 times, and counts up how often each outcome occurs. Try running this code a few times. How does this compare to your trial?
+
+```{r simulation1, exercise=TRUE}
+simulation <- sample(c("Heads", "Tails"), 
+                     size=12, 
+                     replace=TRUE)
+
+table(simulation)
+```
+
+
+### Repeated random samples
+
+Now let's extend this to take repeated random samples. We'll use the {mosaic} library in R to help streamline our simulation code. The code box below will repeat this experiment 10 times using the argument `n=10` in the `rbinom()` function, then plot the 10 outcomes.
+
+Run this code a few times. Then, try modifying it to generate 1000 repeated random samples. 
+
+What do you notice?
+
+```{r simulation2, exercise=TRUE}
+# Generate 10 random replications of the experiment 
+replications <- rbinom(n=10, size=12, prob=0.5)
+
+# Plot the random replications
+replications %>%
+  ggplot(aes(x=rbinom)) + 
+  geom_histogram(binwidth=1, fill='lightblue', col='black') + 
+  labs(x='Correct guesses')
+```
+
+
+```{r quiz3}
+question("What do you notice about the distribution? Choose all that apply.",
+  answer("The histogram of simulated outcomes is symmetric.", correct=TRUE),
+  answer("The most typical outcome of this experiment is between 5 and 7 guessed correctly.", correct=TRUE),
+  answer("It would be quite rare to observe 10 or more correct guesses by random chance alone.", correct=TRUE)
+)
+```
+
+## Binomial distribution
+
+Simulation studies provide a good way to __approximate__ an experiment. 
+
+However in some cases, we can find the __exact__ probability of each possible outcome.
+
+The Parkinson's experiment is an example of a __binomial experiment__.
+
+1. There are a fixed number of random trials, $n$.
+2. Each trial has the same probability of "success", $p$.
+3. Each trial is independent of the other trials.
+4. We are interested in the number of outcomes which are "successes".
+
+In probability language, a "success" represents the category of interest - in our case, when Joy guesses the status of the shirt wearer correctly.
+
+That means we can describe the possible outcomes of this experiment with the __binomial distribution__.
+
+$$P(X=x) = {n \choose x} p^x (1-p)^{n-x}$$
+Using R, we can calculate probabilities of each outcome in a binomial experiment with the `dbinom()` function.
+
+- `x` = the outcome of interest
+- `size` = the number of trials (denoted $n$ in the binomial formula)
+- `p` = the probability of success for each trial
+
+Complete the code below to calculate the probability of observing 6 successes in 12 trials.
+
+```{r exercise1, exercise=TRUE}
+dbinom(x = , size = , p = )
+```
+
+```{r, exercise1-solution}
+dbinom(x = 6, size = 12, p = 0.5)
+```
+
+
+Complete the code below to calculate the probability of observing 4 successes in 12 trials.
+
+```{r exercise2, exercise=TRUE}
+dbinom(x = , size = , p = )
+```
+
+```{r, exercise2-solution}
+dbinom(x = 4, size = 12, p = 0.5)
+```
+
+## What happened?
+
+So how did this experiment turn out?
+
+__Joy guessed the Parkinson's status correctly on 11 out of 12 shirts.__
+
+In one case, Joy said that a shirt belonged to a Parkinson's patient, when it was actually from a "control" sample. She guessed all other shirts correctly. How often would this happen?
+
+Use the code box below to find out how often this would happen in our simulated experiments.
+
+```{r}
+# Generate 1000 random replications of the experiment 
+replications <- data.frame(x=rbinom(n=1000, size=12, prob=0.5))
+```
+
+```{r simulation3, exercise=TRUE}
+# Plot the random replications
+replications %>%
+  mutate(matched_outcome = ifelse(x==11, 'Yes', 'No')) %>%
+  ggplot(aes(x=x)) + 
+  geom_histogram(aes(fill=matched_outcome),
+                 binwidth=1,  col='black') + 
+  labs(x='Correct guesses')
+
+table(replications$x)
+```
+
+In the simulated experiments, this outcome only occurred a handful of times.
+
+Use the code box to calculate the exact probability of this outcome.
+
+```{r exercise3, exercise=TRUE}
+dbinom(x = , size = , p = )
+```
+
+```{r, exercise3-solution}
+dbinom(x = 11, size = 12, p = 0.5)
+```
+
+```{r quiz4}
+question("Based on this example, is there convincing evidence that Joy is able to identify a distinct smell in Parkinson's patients? Explain why or why not.",
+  answer("There is undoubtable evidence to suggest that Joy can identify a distinct smell in Parkinson's patients. This outcome is nearly impossible just by chance."),
+  answer("There is not strong evidence to suggest that Joy can identify a distinct smell in Parkinson's patients. This outcome is not impossible, just unlikely."),
+  answer("There is strong evidence to suggest that Joy can identify a distinct smell in Parkinson's patients, since this outcome is highly unlikely by chance alone.", correct=TRUE)
+)
+```
+
+## Practice
+
+The safety of people who work at or live close to a nuclear power plant has been debated for years. One possible health hazard from radiation exposure is an excess of cancer deaths among those exposed. 
+
+One problem with studying this question is that because the number of deaths attributable to either cancer in general or specific types of cancer is small, reaching “statistically significant” conclusions is difficult. 
+
+A possible solution is to use a __proportional-mortality study__, wherein the proportion of deaths attributed to a specific cause in an exposed group is compared with the corresponding proportion in a large population. Suppose that 13 deaths have occurred among 55- to 64-year old male workers in a nuclear power plant and that in 5 of them, the cause of death was cancer. Assume, based on vital-statistics reports, that approximately 20% of all deaths can be attributed to some form of cancer. 
+
+Does the data suggest a higher proportion of deaths from cancer in nuclear power plant workers?
+
+```{r quiz5}
+question("Select the sample size for this problem.",
+  answer("n = 13", correct=TRUE),
+  answer("n = 5"),
+  answer("n = 20%")
+)
+```
+
+Suppose the underlying probability of death due to cancer is $p=20$.
+
+Use the code box below to calculate the probability of observing 5 deaths due to cancer in this sample, assuming the true probability matches the general population at 20%.
+
+```{r exercise4, exercise=TRUE}
+
+```
+
+```{r, exercise4-solution}
+dbinom(x = 5, size = 13, p = 0.2)
+```
+
+The {visualize} package in R can be used to visualize different probability distributions. The functions in this package will produce plots of the probability distribution, as well as calculate probabilites of particular outcomes.
+
+Run the code in the box below.
+
+```{r exercise5, exercise=TRUE}
+library(visualize)
+
+visualize.binom(stat = 5, size = 12, p = 0.2, section = 'upper')
+```
+
+```{r quiz6}
+question("Based on the plot, how likely would it be to observe five or more deaths due to cancer in this sample, assuming that the true probability of death due to cancer matches the general population?.",
+  answer("0.0691"),
+  answer("n = 0.0726", correct=TRUE),
+  answer("n = 2.4"),
+  answer("There is not enough information on the plot to tell.")
+)
+```
+
+## Prologue
+
+Six months later, the researchers got a phone call. That control shirt that Joy had gotten wrong... had just been diagnosed with Parkinson's.
+
+__Joy was correct on all 12 shirts.__
+
+Use the code box to calculate the exact probability of this outcome.
+
+```{r exercise10, exercise=TRUE}
+dbinom(x = , size = , p = )
+```
+
+```{r, exercise10-solution}
+dbinom(x = 12, size = 12, p = 0.5)
+```
+
