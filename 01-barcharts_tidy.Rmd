@@ -1,0 +1,241 @@
+---
+title: "Case Study: Cardiovascular Complications for Diabetes Patients"
+subtitle: "Learning Objective: Creating bar charts in the `tidyverse`"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+Studies have suggested that the use of Avandia, a drug for managing insulin levels in diabetes patients, may be associated with an increased risk of serious cardiovascular events compared to similar treatments. A study published in the *Journal of the American Medical Association* (JAMA) in 2010 sought to determine if the risk of serious cardiovascular events such as acute myocardial infarction (AMI), stroke, heart failure, and mortality were different for diabetes patients on Avandia compared to a similar medication.
+
+A subset of data from this experiment is in the `avandia` data set. In this data set, the drugs are indiciated by their chemical name and not their trade name.
+
+-   Rosiglitazone is marketed in the United States as "Avandia"
+-   Pioglitazone is marketed under several brand names, and was the comparison drug
+
+The first six rows of the data set are presented in the table below.
+
+```{r}
+library(openintro)
+library(tidyverse)
+
+data(avandia)
+
+head(avandia)
+```
+
+The code below creates a table summarizing how many patients were in each treatment group and outcome.
+
+```{r, echo=TRUE}
+avandia %>% 
+  group_by(treatment, cardiovascular_problems) %>%
+  summarize(n=n())
+```
+
+### Check your understanding
+
+```{r quiz1}
+question("Based on the table, calculate the total sample size for this experiment.",
+  answer("n = 7,979"),
+  answer("n = 161,092"),
+  answer("n = 9,093"), 
+  answer("n = 169,071.", correct=TRUE)
+)
+```
+
+## Bar chart
+
+We can learn a lot from the table, but as the saying goes, "A picture speaks a thousand words." For this data set, we could use a __bar chart__ to visualize the data.
+
+In a bar chart, we use bars to represent the frequency or __counts__ within each category. The higher the bar, the more observations within each category.
+
+Run the code in the box below to make a bar chart of the treatment variable.
+
+```{r exercise1, exercise=TRUE, echo=TRUE}
+library(tidyverse)
+
+avandia %>%
+  ggplot(aes(x=treatment)) + 
+  geom_bar()
+```
+
+
+```{r quiz2}
+question("Based on the bar chart, which treatment group was larger?",
+  answer("Rosiglitazone group"),
+  answer("Pioglitazone group", correct=TRUE)
+)
+```
+
+### Customizing the bar chart
+
+Often times the first chart we create isn't "publication ready". It's good, but we can improve the visual appeal.
+
+Run the code in the box below to change the color of the bar for each treatment group.
+
+```{r exercise2, exercise=TRUE, echo=TRUE}
+avandia %>%
+  ggplot(aes(x=treatment)) + 
+  geom_bar(aes(fill=treatment))
+```
+
+We can also add labels to a plot using the `labs` function.
+
+Run the code in the box below to add labels to the plot.
+
+```{r exercise3, exercise=TRUE, echo=TRUE}
+avandia %>%
+  ggplot(aes(x=treatment)) + 
+  geom_bar(aes(fill=treatment)) + 
+  labs(x='Treatment group', y='Count')
+```
+
+Now it's your turn. In the code box below, make a bar chart showing the number of participants in the study who experienced a cardiovascular problem.
+
+- _Hint_: The variable name is `cardiovascular_problems`.
+
+```{r exercise4, exercise=TRUE}
+avandia %>%
+  ggplot(aes(x=___)) + 
+  geom_bar(aes(fill=___)) + 
+  labs(x='___', y='Count')
+```
+
+```{r, exercise4-solution}
+avandia %>%
+  ggplot(aes(x=cardiovascular_problems)) + 
+  geom_bar(aes(fill=cardiovascular_problems)) + 
+  labs(x='Outcome', y='Count')
+```
+
+```{r quiz3}
+question("Based on the bar chart, about how many participants overall experienced cardiovasular problems during the study?",
+  answer("About 5% of participants experienced cardiovascular problems.", correct=TRUE),
+  answer("About 15% of participants experienced cardiovascular problems."), 
+  answer("About 25% of participants experienced cardiovascular problems."), 
+  answer("About 50% of participants experienced cardiovascular problems.")
+)
+```
+
+## Multivariate bar charts
+
+Now that we have the basic framework of a bar chart, we might like to add a second variable. A way to do this is to use one variable on the "x"-axis, and a second to shade in the bars.
+
+Fill in the blanks in the code box below to plot treatment group on the x-axis and outcome as the color. 
+
+```{r exercise5, exercise=TRUE}
+avandia %>%
+  ggplot(aes(x=___)) + 
+  geom_bar(aes(fill=___)) + 
+  labs(x='Treatment group', y='Count')
+```
+
+```{r, exercise5-solution}
+avandia %>%
+  ggplot(aes(x=treatment)) + 
+  geom_bar(aes(fill=cardiovascular_problems)) + 
+  labs(x='Treatment group', y='Count')
+```
+
+This plot is usually called a __stacked bar chart__, since the groups are "stacked" on one another.
+
+Another option is a __separated bar chart__. In this case the bars are not stacked, but placed next to one another. Adding the `position='dodge'` option accomplishes this.
+
+Fill in the blanks in the code box below to plot treatment group on the x-axis and outcome as the color. 
+
+```{r exercise6, exercise=TRUE}
+avandia %>%
+  ggplot(aes(x=___)) + 
+  geom_bar(aes(fill=___), position='dodge') + 
+  labs(x='Treatment group', y='Count')
+```
+
+```{r, exercise6-solution}
+avandia %>%
+  ggplot(aes(x=treatment)) + 
+  geom_bar(aes(fill=cardiovascular_problems), position='dodge') + 
+  labs(x='Treatment group', y='Count')
+```
+
+
+### Interpretation
+
+```{r quiz4}
+question("Choose the best interpretation of the bar charts.",
+  answer("In both groups, cardiovascular events are relatively unlikely.", correct=TRUE),
+  answer("Cardiovascular events are much more likely in the pioglitazone group."),
+  answer("Cardiovascular events are much more likely in the rosiglitazone group.")
+)
+```
+
+## Practice
+
+Three treatments were compared to test their relative efficacy (effectiveness) in treating Type 2 Diabetes in patients aged 10-17 who were being treated with metformin. The primary outcome was lack of glycemic control (or not); lacking glycemic control means the patient still needed insulin, which is not the preferred outcome for a patient.
+
+The data set is named `diabetes2`. The first six observations are shown below.
+
+```{r}
+data(diabetes2)
+head(diabetes2)
+```
+
+Use the code box below to make a bar chart of the three treatment groups. How are the treatment groups distributed?
+
+```{r exercise11, exercise=TRUE}
+
+```
+
+```{r, exercise11-solution}
+diabetes2 %>%
+  ggplot(aes(x=treatment)) +
+  geom_bar(aes(fill=treatment)) + 
+  labs(x='Treatment group', y='Count')
+```
+
+Use the code box to make a bar chart of the overall outcome. How many patients overall experienced a successful outcome?
+
+```{r exercise12, exercise=TRUE}
+
+```
+
+```{r, exercise12-solution}
+diabetes2 %>%
+  ggplot(aes(x=outcome)) +
+  geom_bar(aes(fill=outcome)) + 
+  labs(x='Outcome', y='Count')
+```
+
+Use the code box to make a bar chart with both the overall outcome and treatment represented. How were treatment and outcome related in this experiment?
+
+```{r exercise13, exercise=TRUE}
+
+```
+
+```{r, exercise13-solution}
+diabetes2 %>%
+  ggplot(aes(x=treatment)) +
+  geom_bar(aes(fill=outcome)) + 
+  labs(x='Treatment', y='Count')
+```
+
+
+```{r quiz5}
+question("Which group was most likely to experience a successful outcome?",
+  answer("Lifestyle intervention only"),
+  answer("Metformin"),
+  answer("Rosiglitazone", correct=TRUE)
+)
+```
+
+------------------
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.

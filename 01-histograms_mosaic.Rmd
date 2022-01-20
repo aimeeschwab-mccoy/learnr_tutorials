@@ -1,0 +1,260 @@
+---
+title: "Case Study: Body Temperature"
+subtitle: "Learning Objective: Creating histograms in the `tidyverse`"
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+Conventional wisdom tells us that the "normal" body temperature is 98.6 degrees Fahrenheit (37 degrees Celsius). But is this really true?
+
+A study published in the _Journal of the American Medical Association_ in 1992 reported on the results of a study in which 130 participants had their body temperature and heart rate recorded.
+
+```{r}
+library(openintro)
+library(tidyverse)
+
+thermometry <- structure(list(body.temp = c(96.3, 96.7, 96.9, 97, 97.1, 97.1, 
+97.1, 97.2, 97.3, 97.4, 97.4, 97.4, 97.4, 97.5, 97.5, 97.6, 97.6, 
+97.6, 97.7, 97.8, 97.8, 97.8, 97.8, 97.9, 97.9, 98, 98, 98, 98, 
+98, 98, 98.1, 98.1, 98.2, 98.2, 98.2, 98.2, 98.3, 98.3, 98.4, 
+98.4, 98.4, 98.4, 98.5, 98.5, 98.6, 98.6, 98.6, 98.6, 98.6, 98.6, 
+98.7, 98.7, 98.8, 98.8, 98.8, 98.9, 99, 99, 99, 99.1, 99.2, 99.3, 
+99.4, 99.5, 96.4, 96.7, 96.8, 97.2, 97.2, 97.4, 97.6, 97.7, 97.7, 
+97.8, 97.8, 97.8, 97.9, 97.9, 97.9, 98, 98, 98, 98, 98, 98.1, 
+98.2, 98.2, 98.2, 98.2, 98.2, 98.2, 98.3, 98.3, 98.3, 98.4, 98.4, 
+98.4, 98.4, 98.4, 98.5, 98.6, 98.6, 98.6, 98.6, 98.7, 98.7, 98.7, 
+98.7, 98.7, 98.7, 98.8, 98.8, 98.8, 98.8, 98.8, 98.8, 98.8, 98.9, 
+99, 99, 99.1, 99.1, 99.2, 99.2, 99.3, 99.4, 99.9, 100, 100.8), 
+    gender = structure(c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 
+    2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+    1L), .Label = c("female", "male"), class = "factor"), heart.rate = c(70L, 
+    71L, 74L, 80L, 73L, 75L, 82L, 64L, 69L, 70L, 68L, 72L, 78L, 
+    70L, 75L, 74L, 69L, 73L, 77L, 58L, 73L, 65L, 74L, 76L, 72L, 
+    78L, 71L, 74L, 67L, 64L, 78L, 73L, 67L, 66L, 64L, 71L, 72L, 
+    86L, 72L, 68L, 70L, 82L, 84L, 68L, 71L, 77L, 78L, 83L, 66L, 
+    70L, 82L, 73L, 78L, 78L, 81L, 78L, 80L, 75L, 79L, 81L, 71L, 
+    83L, 63L, 70L, 75L, 69L, 62L, 75L, 66L, 68L, 57L, 61L, 84L, 
+    61L, 77L, 62L, 71L, 68L, 69L, 79L, 76L, 87L, 78L, 73L, 89L, 
+    81L, 73L, 64L, 65L, 73L, 69L, 57L, 79L, 78L, 80L, 79L, 81L, 
+    73L, 74L, 84L, 83L, 82L, 85L, 86L, 77L, 72L, 79L, 59L, 64L, 
+    65L, 82L, 64L, 70L, 83L, 89L, 69L, 73L, 84L, 76L, 79L, 81L, 
+    80L, 74L, 77L, 66L, 68L, 77L, 79L, 78L, 77L)), row.names = c(NA, 
+-130L), class = "data.frame")
+
+head(thermometry)
+```
+
+In the article, the authors state that 98.6 degrees F is an _upper limit_ for the normal body temperature. Let's explore this data to see whether that seems true.
+
+
+
+## Histogram
+
+A useful summary of a numerical variable is the __histogram__. Like a bar chart, a histogram uses bars to represent the relative frequency of different values of the variable. 
+
+```{r exercise1, exercise=TRUE, echo=TRUE}
+library(mosaic)
+histogram(~body.temp, data=thermometry)
+```
+
+According to this histogram, the most common range for body temperature was between about 98 and 98.6 degrees.
+
+```{r quiz1}
+question("Based on this histogram, what were the least common ranges for body temperature?",
+  answer("96-97 degrees F"),
+  answer("97-98 degrees F"),
+  answer("98-99 degrees F"),
+  answer("99-100 degrees F"),
+  answer("More than 100 degrees F", correct=TRUE)
+)
+```
+
+### Customizing the histogram
+
+Like with the bar chart, we can often improve our histogram by adding some additional options. For example, we can change the fill color of the histogram using the `col` option.
+
+```{r exercise2, exercise=TRUE, echo=TRUE}
+histogram(~body.temp, data=thermometry, col='lightblue')
+```
+
+We can also add labels to a plot using the `xlab` and `ylab` function.
+
+Run the code in the box below to add labels to the plot.
+
+```{r exercise3, exercise=TRUE, echo=TRUE}
+histogram(~body.temp, data=thermometry, 
+          col='lightblue',
+          xlab='Body temperature')
+```
+
+On the "y"-axis, this histogram by default reports the "density". Essentially, the density is the height needed so that the total area of the histogram bars adds to 1.
+
+In practice, we're probably more interested in the actual frequencies or counts.
+
+
+```{r exercise4, exercise=TRUE, echo=TRUE}
+histogram(~body.temp, data=thermometry, 
+          col='lightblue',
+          xlab='Body temperature',
+          type='count')
+```
+
+```{r quiz2}
+question("Based on the histogram, about how many subjects had a body temperature near 97 degrees F?",
+  answer("5"),
+  answer("10", correct=TRUE),
+  answer("20"),
+  answer("40")
+)
+```
+
+Now it's your turn. In the code box below, make a histogram of the heart rate (in beats per minute). Be sure to choose an appropriate bin width and axis label. 
+
+- _Hint_: The variable name is `heart.rate`.
+
+- The link below lists all of the named colors available in R. Try using your favorite color(s) in your plot.
+
+http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+
+```{r exercise5, exercise=TRUE}
+histogram(~___, 
+          data=thermometry, 
+          col='___',
+          xlab='___',
+          type='___')
+```
+
+```{r, exercise5-solution}
+histogram(~heart.rate, 
+          data=thermometry, 
+          col='lightblue',
+          xlab='Heart rate',
+          type='count')
+```
+
+```{r quiz3}
+question("Based on the histogram, which of the following ranges is the most commonly observed for heart rate?",
+  answer("Under 60 beats per minute"),
+  answer("60-70 beats per minute"),
+  answer("70-80 beats per minute", correct=TRUE),
+  answer("Over 80 beats per minute")
+)
+```
+
+## Multivariate histograms
+
+Histograms can also be used to compare numerical variables across different groups. For example, is the "typical" body temperature different for men and women?
+
+In the code box below, plot body temperature on the x-axis. Use the blank space directly after the vertical bar to separate the histogram based on `gender`.
+
+```{r exercise6, exercise=TRUE}
+histogram(~___|___, data=thermometry, 
+          xlab='Body temperature',
+          type='count')
+```
+
+```{r, exercise6-solution}
+histogram(~body.temp|gender, data=thermometry, 
+          xlab='Body temperature',
+          type='count')
+```
+
+The vertical bar `|` essentially splits the histogram into two groups.
+
+
+### Interpretation
+
+```{r quiz4}
+question("Which of the statements below apply to this pair of histograms? Choose all that apply.",
+  answer("Both histograms are unimodal.", correct=TRUE),
+  answer("Both histograms are symmetric."),
+  answer("The women were more likely to have a body temperature above 100 degrees Fahrenheit than the men.", correct=TRUE)
+)
+```
+
+### Resting heart rate
+
+Is there a difference in resting heart rate based on gender?
+
+```{r exercise8, exercise=TRUE}
+histogram(~___|___, data=thermometry, 
+          xlab='___',
+          type='___')
+```
+
+```{r, exercise8-solution}
+histogram(~heart.rate|gender, data=thermometry, 
+          xlab='Heart rate',
+          type='count')
+```
+
+## Practice
+
+In 2004, the state of North Carolina released to the public a large data set containing information on births recorded in this state. This data set has been of interest to medical researchers who are studying the relation between habits and practices of expectant mothers and the birth of their children. This is a random sample of 1,000 cases from this data set.
+
+```{r}
+data(ncbirths)
+head(ncbirths)
+```
+
+Use the code box below to make a histogram of birthweight in pounds, `weight`.
+
+```{r exercise11, exercise=TRUE}
+
+```
+
+```{r, exercise11-solution}
+histogram(~weight, 
+          data=ncbirths, 
+          type='count', 
+          xlab='Birthweight')
+```
+
+Use the code box to make a histogram of birthweight split by mother's smoking status, `habit`. Does smoking during pregnancy appear to have an effect on birthweight?
+
+```{r exercise12, exercise=TRUE}
+
+```
+
+```{r, exercise12-solution}
+histogram(~weight|habit, 
+          data=ncbirths, 
+          type='count', 
+          xlab='Birthweight')
+```
+
+Use the code box to make a histogram of birthweight split by the infant's gender, `gender`. Do boys appear to weigh more than girls at birth?
+
+```{r exercise13, exercise=TRUE}
+
+```
+
+```{r, exercise13-solution}
+histogram(~weight|gender, 
+          data=ncbirths, 
+          type='count', 
+          xlab='Birthweight')
+```
+
+
+
+------------------
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
