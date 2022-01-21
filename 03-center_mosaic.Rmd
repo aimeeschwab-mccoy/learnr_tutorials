@@ -1,0 +1,226 @@
+---
+title: "Case Study: Behavioral Risk Factor Surveillance System"
+subtitle: "Learning Objective: Measures of Center" 
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+The Behavioral Risk Factor Surveillance System, or BRFSS, is an annual telephone survey of 350,000 people in the United States. The BRFSS is designed to identify risk factors in the adult population and report emerging health trends. Respondents are asked about their diet, weekly exercise, possible tobacco use, and healthcare coverage.
+
+```{r}
+source("http://www.openintro.org/stat/data/cdc.R")
+brfss <- cdc
+head(brfss)
+```
+
+Variables in this data set include:
+
+-   `genhlth`: Self-reported health status
+-   `exerany`: Whether or not the respondent exercised in the past month (0=no, 1=yes)
+-   `hlthplan`: Whether or not the respondent had health insurance coverage in the past month (0=no, 1=yes)
+-   `smoke100`: Whether or not the respondent has smoked at least 100 cigarettes in their lifetime (0=no, 1=yes)
+-   `height`: Height in inches
+-   `weight`: Weight in pounds
+-   `wtdesire`: Goal weight in pounds
+-   `age`: Age
+-   `gender`: Gender (m=male, f=female)
+
+## Measures of center
+
+The phrase **measures of center** refers to sample statistics that describe the "typical" values of a data set. Common measures of center include:
+
+**Mean**: Arithmetic average
+
+$$
+\bar{x}=\frac{1}{n}\sum_{i=1}^n x_i
+$$
+
+**Median**: Middle value when ordered from smallest to largest, denoted $m$
+
+**Mode**: Most common observation(s)
+
+The mean and median are used for numerical values, while the mode can be used to describe both categorical and numerical variables. A variable can only have a single mean or median, but it can have multiple modes.
+
+### Calculating mean and median
+
+The `favstats()` provides summary statistics about variables in data sets.
+
+- What do you think `favstats()` stands for?
+
+The code below calculates all summary statistics for the height of respondents in the`brfss` data set. Run this code, and use the output to answer the following questions.
+
+```{r exercise1, exercise=TRUE, echo=TRUE}
+library(mosaic)
+favstats(~height, data=brfss)
+```
+
+```{r quiz1}
+question("Identify the mean height of respondents.",
+  answer("67.2", correct=TRUE),
+  answer("4.13"),
+  answer("48"),
+  answer("64"),
+  answer("67"),
+  answer("70"),
+  answer("93")
+)
+```
+
+```{r quiz2}
+question("Identify the median height of respondents.",
+  answer("67.2"),
+  answer("4.13"),
+  answer("48"),
+  answer("64"),
+  answer("67", correct=TRUE),
+  answer("70"),
+  answer("93")
+)
+```
+
+
+
+### Skewness
+
+When would we choose to use the mean or median to describe a data set? The median is considered __resistant to outliers__. In other words, relatively large or small values of the variable will have an influence on the mean, but not the median.
+
+![](mean_median.jpg)
+
+Comparing the mean and median gives us way to explore the __skewness__ of a data set.
+
+- If the $mean << median$, then the variable's distribution is likely __left skewed__.
+- If the $mean >> median$, then the variable's distribution is likely __right skewed__.
+- If the $mean \approx median$, then the variable's distribution is likely __symmetric__.
+
+Use the code box below to produce a histogram of the respondents' desired weight. 
+
+```{r exercise2, exercise=TRUE, echo=TRUE}
+
+```
+
+```{r, exercise2-solution}
+library(mosaic)
+histogram(~wtdesire, data=brfss)
+```
+
+```{r quiz3}
+question("Choose the best description of the distribution of desired weight.",
+  answer("Skewed left"),
+  answer("Symmetric"),
+  answer("Skewed right", correct=TRUE)
+)
+```
+
+Confirm the relationship between the mean and median desired weight.
+
+```{r exercise3, exercise=TRUE, echo=TRUE}
+favstats(~___, data=brfss)
+```
+
+```{r, exercise3-solution}
+favstats(~wtdesire, data=brfss)
+```
+
+Based on the summary statistics, we can see that the mean for this variable is $\bar{x}=155$ and $m=150$. You may also notice that the maximum is quite large, $max=680$. 
+
+This is the cause of the extended right tail on the histogram! R automatically adjusts the scale of the plot axes to fit the data. Even though this data point can't be seen on the histogram, we know it's there because the axis labels extend that far.
+
+## Comparing groups
+
+How does the weight of American adults depend on exercise habits?
+
+We can find out by grouping our data with a vertical bar. In the code box below, group the data by exercise status, then calculate summary statistics for weight.
+
+```{r exercise4, exercise=TRUE, echo=TRUE}
+favstats(~___|___, data=___)
+```
+
+```{r, exercise4-solution}
+favstats(~weight|exerany, data=brfss)
+```
+
+```{r quiz4}
+question("Based on the output, which group of American adults have the lowest mean weight?",
+  answer("Those who exercised in the last month", correct=TRUE),
+  answer("Those who did not exercise in the last month"),
+  answer("Both groups have the same mean weight"),
+  answer("There is not enough information in this output to say")
+)
+```
+
+```{r quiz5}
+question("Based on the output, which group of American adults have the lowest median weight?",
+  answer("Those who exercised in the last month"),
+  answer("Those who did not exercise in the last month"),
+  answer("Both groups have the same median weight", correct=TRUE),
+  answer("There is not enough information in this output to say")
+)
+```
+
+## Practice
+
+A study published in the _Southern Medical Journal_ investigated the health status of black residents in two communities in central Virginia. The researchers wanted to explore the prevalence of diabetes and other cardiovascular risk factors in these communities.
+
+The data is named `diabetes`. The first six observations are below.
+
+```{r}
+library(faraway)
+data(diabetes)
+head(diabetes)
+diabetes$ratio <- as.numeric(diabetes$ratio)
+```
+
+One of the cardiovascular risk factors studied was the total cholesterol/HDL ratio (`ratio`). This is the proportion of high density lipoprotein (HDL) cholesterol compared to the total cholesterol (HDL, LDL, and VLDL) combined. 
+
+The "optimal" range for this ratio is 0-5. The higher this ratio, the greater the risk of heart attack and stroke.
+
+Possible variables that could explain differences in this ratio are:
+
+- `location`: Two communities were sampled
+- `gender`: Respondents identified themselves as male or female
+- `frame`: Respondents identified whether they considered themselves to have a "small", "large", or "medium" frame
+
+Use the code box below to make a boxplot of the cholesterol ratio, grouped by location. Add appropriate labels to your plot.
+
+```{r exercise11, exercise=TRUE}
+
+```
+
+```{r, exercise11-solution}
+bwplot(~ratio|location, data=diabetes)
+```
+
+Calculate the overall mean and median cholesterol ratio.
+
+```{r exercise12, exercise=TRUE}
+
+```
+
+```{r, exercise12-solution}
+favstats(~ratio, data=diabetes)
+```
+
+Now use location as a grouping variable. Did the mean cholesterol level change based on location?
+
+```{r exercise13, exercise=TRUE}
+
+```
+
+```{r, exercise13-solution}
+favstats(~ratio|location, data=diabetes)
+```
+
+
+------------------------------------------------------------------------
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" alt="Creative Commons License" style="border-width:0"/></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.

@@ -1,0 +1,209 @@
+---
+title: "Case Study: Behavioral Risk Factor Surveillance System"
+subtitle: "Learning Objective: Measures of Spread" 
+date: "Last updated: `r Sys.Date()`"
+output: 
+  learnr::tutorial:
+    theme: cosmo
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+## Introduction
+
+The Behavioral Risk Factor Surveillance System, or BRFSS, is an annual telephone survey of 350,000 people in the United States. The BRFSS is designed to identify risk factors in the adult population and report emerging health trends. Respondents are asked about their diet, weekly exercise, possible tobacco use, and healthcare coverage.
+
+```{r}
+source("http://www.openintro.org/stat/data/cdc.R")
+brfss <- cdc
+head(brfss)
+```
+
+Variables in this data set include:
+
+-   `genhlth`: Self-reported health status
+-   `exerany`: Whether or not the respondent exercised in the past month (0=no, 1=yes)
+-   `hlthplan`: Whether or not the respondent had health insurance coverage in the past month (0=no, 1=yes)
+-   `smoke100`: Whether or not the respondent has smoked at least 100 cigarettes in their lifetime (0=no, 1=yes)
+-   `height`: Height in inches
+-   `weight`: Weight in pounds
+-   `wtdesire`: Goal weight in pounds
+-   `age`: Age
+-   `gender`: Gender (m=male, f=female)
+
+## Measures of spread
+
+The phrase __measures of spread__ refers to how spread out a variable is. Variables that have __low variability__ have very consistent observations, and variables with __high variability__ may have values that vary considerably from one another.
+
+Two common measures of spread are the interquartile range and the standard deviation.
+
+### Interquartile range
+
+__Interquartile range__: The range of the middle 50% of the variable
+
+$$
+IQR = Q3-Q1
+$$
+
+Here, $Q3$ denotes the third quartile (75th percentile), and $Q1$ denotes the first quartile (25th percentile).
+
+50% of all observations for a variable fall between the interquartile range. The smaller the $IQR$, the closer these values are together.
+
+Use the code box below to calculate the $IQR$ for the respondents' ages.
+
+```{r exercise1, exercise=TRUE, echo=TRUE}
+library(mosaic)
+favstats(~age, data=brfss)
+```
+
+```{r quiz1}
+question("The IQR of age is...",
+  answer("31"),
+  answer("57"),
+  answer("57-31=26", correct=TRUE),
+  answer("99"),
+  answer("18"),
+  answer("99-18=71")
+)
+```
+
+
+### Standard deviation
+
+__Standard deviation__: The distance between a "typical" observation and the mean, $\bar{x}$
+
+$$s = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(x_i-\bar{x})^2}$$
+
+The standard deviation formula is complex, but the interpretation is straightforward.
+
+- The larger the standard deviation, the farther observations tend to be from the mean of the variable.
+
+Use the code box below to calculate the standard deviation of age, after splitting the data into two groups: those with and without health insurance coverage.
+
+```{r exercise2, exercise=TRUE, echo=TRUE}
+favstats(~age|hlthplan, data=brfss)
+```
+
+```{r quiz2}
+question("Based on standard deviation, which group in the survey had more variable ages?",
+  answer("Those without health coverage"),
+  answer("Those with health coverage", correct=TRUE),
+  answer("Both groups have the same variability."),
+  answer("There is not enough information to tell.")
+)
+```
+
+Visually confirm this result by making a histogram of age, split into two groups.
+
+```{r exercise3, exercise=TRUE, echo=TRUE}
+histogram(~__|__, data=brfss)
+```
+
+```{r, exercise3-solution}
+histogram(~age|hlthplan, data=brfss)
+```
+
+
+```{r quiz3}
+question("Based on the IQR, which group in the survey had more variable ages?",
+  answer("Those without health coverage"),
+  answer("Those with health coverage", correct=TRUE),
+  answer("Both groups have the same variability."),
+  answer("There is not enough information to tell.")
+)
+```
+
+```{r quiz4}
+question("Based on the summary statistics presented, which group in the survey tended to be younger?",
+  answer("Those without health coverage", correct=TRUE),
+  answer("Those with health coverage"),
+  answer("Both groups have the same variability."),
+  answer("There is not enough information to tell.")
+)
+```
+
+
+
+
+## Practice
+
+A study published in the _Southern Medical Journal_ investigated the health status of black residents in two communities in central Virginia. The researchers wanted to explore the prevalence of diabetes and other cardiovascular risk factors in these communities.
+
+The data is named `diabetes`. The first six observations are below.
+
+```{r}
+library(faraway)
+data(diabetes)
+head(diabetes)
+diabetes$ratio <- as.numeric(diabetes$ratio)
+```
+
+One of the cardiovascular risk factors studied was the total cholesterol/HDL ratio (`ratio`). This is the proportion of high density lipoprotein (HDL) cholesterol compared to the total cholesterol (HDL, LDL, and VLDL) combined. 
+
+The "optimal" range for this ratio is 0-5. The higher this ratio, the greater the risk of heart attack and stroke.
+
+Possible variables that could explain differences in this ratio are:
+
+- `location`: Two communities were sampled
+- `gender`: Respondents identified themselves as male or female
+- `frame`: Respondents identified whether they considered themselves to have a "small", "large", or "medium" frame
+
+Use the code box below to make a histogram of the cholesterol ratio, grouped by location. Add appropriate labels to your plot.
+
+```{r exercise11, exercise=TRUE}
+
+```
+
+```{r, exercise11-solution}
+histogram(~ratio|location, data=diabetes)
+```
+
+Calculate the standard deviation of the cholesterol ratio for each group. 
+
+```{r exercise12, exercise=TRUE}
+
+```
+
+```{r, exercise12-solution}
+favstats(~ratio|location, data=diabetes)
+```
+
+```{r quiz11}
+question("Which location had more variable cholesterol ratio based on the standard deviation?",
+  answer("Buckingham", correct=TRUE),
+  answer("Louisa"),
+  answer("Both counties have the same standard deviation."),
+  answer("There is not enough information to tell.")
+)
+```
+
+Calculate the IQR of the cholesterol ratio for each group. 
+
+```{r exercise13, exercise=TRUE}
+
+```
+
+```{r, exercise13-solution}
+# Buckingham
+5.5 - 3.2
+# Louisa
+5.35 - 3.35
+```
+
+```{r quiz12}
+question("Which location had more variable cholesterol ratio based on the IQR?",
+  answer("Buckingham", correct=TRUE),
+  answer("Louisa"),
+  answer("Both counties have the same standard deviation."),
+  answer("There is not enough information to tell.")
+)
+```
+
+
+------------------------------------------------------------------------
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" alt="Creative Commons License" style="border-width:0"/></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
